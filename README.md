@@ -7,5 +7,5 @@ git clone https://github.com/adafruit/Adafruit_Python_MPR121
 git clone https://github.com/adafruit/Adafruit_Python_GPIO
 
 NOTE :
-Adafruit_Python_MPR121 has been deprecated. Adafruit has a new module for mpr121 using CircuitPython at github.com/adafruit/Adafruit_CircuitPython_MPR121
+Adafruit_Python_MPR121 has been deprecated. Adafruit has a new module for mpr121 using CircuitPython at https://github.com/adafruit/Adafruit_CircuitPython_MPR121
 but this requires the whole CircuitPython install, which is rather large. It may be worth switching to this in the future.
