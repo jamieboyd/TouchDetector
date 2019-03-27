@@ -2,7 +2,7 @@
 #-*-coding: utf-8 -*-
 
 """
-Code to use the MPR121 capacitive touch sensor from Adafruit with a Raspberry Pi to count/log touches, while ignoring 'un-touch' events.
+Python code to use the MPR121 capacitive touch sensor from Adafruit with a Raspberry Pi to count/log touches, while ignoring 'un-touch' events.
 Counting/Logging happens in a threaded callback (using RPi.GPIO.add_event_callback) triggered from the IRQ pin on the MPR121
 
 Adafruit_MPR121 requires the Adafuit MPR121 library which, in turn, requires the Adafuit GPIO library for I2C-bus access:
@@ -57,7 +57,7 @@ class TouchDetector (MPR121):
         gTouchDetector.prevTouches = touches
         
     
-    def __init__(self, I2Caddr, touchThresh, unTouchThresh, chanTuple):
+    def __init__(self, I2Caddr, touchThresh, unTouchThresh, chanTuple, customCallBack = None):
         super().__init__()
         self.setup (I2Caddr, touchThresh, unTouchThresh, chanTuple)
 
@@ -86,7 +86,7 @@ class TouchDetector (MPR121):
         GPIO.add_event_detect (IRQpin, GPIO.FALLING)
         GPIO.add_event_callback (IRQpin, touchDetectorCallback)
         # optional custom callback function, called from main callback function
-        self.customCallback = None
+        self.customCallback = customCallBack
 
     def removeCallback (self, IRQpin):
         GPIO.remove_event_detect (IRQpin)
@@ -121,12 +121,12 @@ class TouchDetector (MPR121):
             results.append ((channel, self.touchCounts [channel]))
         return results
 
-    def startLog (self):
+    def startTimeLog (self):
         for chan in self.touchChans:
             self.touchTimes.update({chan : []})
         self.callbackMode = self.callbackMode | TouchDetector.callbackTimeMode
 
-    def stopLog (self):
+    def stopTimeLog (self):
         """
         returns a shallow copy (the lists in the original and copy are the same)
         of the dictionary of lists of touch times for each channel
@@ -156,6 +156,5 @@ class TouchDetector (MPR121):
                     while self.prevTouches == 0 and time() < endTime:
                         sleep (0.05)
                     return self.prevTouches # will be the channel touched, or 0 if no touches till timeout expires
-
 
 
