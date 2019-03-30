@@ -25,7 +25,7 @@ gTouchDetector = None        # global reference to touchDetector for use in touc
 
 class TouchDetector (MPR121):
     """
-    TouchDetector inherits from Adafruit's MPR121 capacitive touch sensor code 
+    *******************  TouchDetector inherits from Adafruit's MPR121 capacitive touch sensor code *************************
 
     mnemonic defines for use in controlling touchDetector callback
     """
