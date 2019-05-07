@@ -18,12 +18,12 @@ from Adafruit_MPR121 import MPR121
 import RPi.GPIO as GPIO
 
 from array import array
-from time import time
+from time import time, sleep
 
 gTouchDetector = None        # global reference to touchDetector for use in touchDetector callback
 
 
-class TouchDetector (MPR121):
+class TouchDetector (MPR121.MPR121):
     """
     *******************  TouchDetector inherits from Adafruit's MPR121 capacitive touch sensor code *************************
 
@@ -31,7 +31,7 @@ class TouchDetector (MPR121):
     """
     callbackCountMode = 1   # callback counts licks on set of channels in touchChans
     callbackTimeMode = 2    # callback records time of each touch for each channel in touchChans 
-    callbackCustomMode = 4  # callback calls custom function with touched channel
+    callbackCustomMode = 4  # callback calls user-supplied custom function with touched channel
 
     @staticmethod
     def touchDetectorCallback (channel):
@@ -43,7 +43,7 @@ class TouchDetector (MPR121):
         on a set of channels, and/or calls a user-supplied custom function with the touched channel as the only parameter.
         """
         global gTouchDetector
-        touches = gTouchDetector.touched()
+        touches = gTouchDetector.touched ()
         # compare current touches to previous touches to find new touches
         for channel in gTouchDetector.touchChans:
             chanBits = 2**channel
@@ -57,13 +57,14 @@ class TouchDetector (MPR121):
         gTouchDetector.prevTouches = touches
         
     
-    def __init__(self, I2Caddr, touchThresh, unTouchThresh, chanTuple, customCallBack = None):
+    def __init__(self, I2Caddr, touchThresh, unTouchThresh, chanTuple, IRQpin):
         super().__init__()
-        self.setup (I2Caddr, touchThresh, unTouchThresh, chanTuple)
+        self.setup (I2Caddr, touchThresh, unTouchThresh, chanTuple, IRQpin)
 
-    def setup (self, I2Caddr, touchThresh, unTouchThresh, chanTuple):
+    def setup (self, I2Caddr, touchThresh, unTouchThresh, chanTuple, IRQpin):
         self.begin(address =I2Caddr)
         self.set_thresholds (touchThresh, unTouchThresh)
+        self.IRQpin = IRQpin
          # state of touches from one invocation to next, used in callback to separate touches from untouches
         self.prevTouches = self.touched()
         # an array of ints to count touches for each channel.
@@ -76,30 +77,30 @@ class TouchDetector (MPR121):
             self.touchTimes.update({chan : []})
         # callback mode, for counting touches or logging touch times
         self.callbackMode = 0
+        self.customCallback = None
         # make global gTouchDetector reference this TouchDetector
         global gTouchDetector
-        gLickDetector = self
+        gTouchDetector = self
         # set up IRQ interrupt pin for input with pull-up resistor
         GPIO.setmode (GPIO.BCM) # GPIO.setmode may already have been called, but call it again anyway
         GPIO.setup(IRQpin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-         # install callback
-        GPIO.add_event_detect (IRQpin, GPIO.FALLING)
-        GPIO.add_event_callback (IRQpin, touchDetectorCallback)
-        # optional custom callback function, called from main callback function
-        self.customCallback = customCallBack
+        # install callback
+        GPIO.add_event_detect (self.IRQpin, GPIO.FALLING)
+        GPIO.add_event_callback (self.IRQpin, TouchDetector.touchDetectorCallback)
+        self.callbackMode = 0
 
-    def removeCallback (self, IRQpin):
-        GPIO.remove_event_detect (IRQpin)
-        GPIO.cleanup (IRQpin)
+    def removeCallback (self):
+        GPIO.remove_event_detect (self.IRQpin)
+        GPIO.cleanup (self.IRQpin)
         self.callbackMode = 0
  
     def addCustomCallback (self, customCallBack):
         self.customCallback = customCallBack
 
-    def startCustomCallback ():
+    def startCustomCallback(self):
         self.callbackMode |= TouchDetector.callbackCustomMode
 
-    def stopCustomCallback
+    def stopCustomCallback(self):
         self.callbackMode &= ~TouchDetector.callbackCustomMode
 
     def startCount (self):
