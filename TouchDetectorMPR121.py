@@ -59,17 +59,13 @@ class TouchDetector (MPR121.MPR121):
     
     def __init__(self, I2Caddr, touchThresh, unTouchThresh, pinTuple, IRQpin):
         """
-        inits the MPR121 superclass, and does MPR121 stuff, then calls setup do do touchDetector stuff
+        inits the MPR121 superclass, does MPR121 stuff, then does touchDetector stuff
         """
+        # MPR121 stuff
         super().__init__()
         self.begin(address =I2Caddr)
         self.set_thresholds (touchThresh, unTouchThresh)
-        self.setup (pinTuple, IRQpin)
-
-    def setup (self, pinTuple, IRQpin):
-        """
-        setup for TouchDetector specific stuff, making data arrays, and installing callback
-        """
+        #touchDetector specific stuff, making data arrays, and installing callback
         # the tuple of pin numbers to monitor, passed in
         self.touchPins = pinTuple
         # an array of ints to count touches for each pin, for callbackCountMode
