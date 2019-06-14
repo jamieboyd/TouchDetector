@@ -127,6 +127,15 @@ class TouchDetector (MPR121.MPR121):
         for i in range (0,12):
             self.touchCounts [i] = 0
         self.callbackMode |= TouchDetector.callbackCountMode
+        
+    def resumeCount(self):
+        self.callbackMode |= TouchDetector.callbackCountMode
+        
+    def getCount (self):
+        results = []
+        for pin in self.touchPins:
+            results.append ((pin, self.touchCounts [pin]))
+        return results
 
     def stopCount (self):
         """
