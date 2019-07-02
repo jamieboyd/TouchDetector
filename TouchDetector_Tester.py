@@ -60,6 +60,7 @@ def main ():
     sleep (10)
     td.stopCustomCallback()
     print ('All finished')
+    del td
     
 if __name__ == '__main__':
     main()
