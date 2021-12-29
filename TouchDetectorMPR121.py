@@ -46,6 +46,7 @@ class TouchDetector (MPR121.MPR121):
         touches = gTouchDetector.touched ()
         # compare current touches to previous touches to find new touches
         for pin in gTouchDetector.touchPins:
+            pin = int(pin)
             pinBits = 2**pin
             if (touches & pinBits) and not (gTouchDetector.prevTouches & pinBits):
                 if gTouchDetector.callbackMode & TouchDetector.callbackCountMode:
@@ -134,6 +135,7 @@ class TouchDetector (MPR121.MPR121):
     def getCount (self):
         results = []
         for pin in self.touchPins:
+            pin = int(pin)
             results.append ((pin, self.touchCounts [pin]))
         return results
 
@@ -145,6 +147,7 @@ class TouchDetector (MPR121.MPR121):
         self.callbackMode &= ~TouchDetector.callbackCountMode
         results = []
         for pin in self.touchPins:
+            pin = int(pin)
             results.append ((pin, self.touchCounts [pin]))
         return results
 
@@ -154,6 +157,7 @@ class TouchDetector (MPR121.MPR121):
         clears the dictionary of lists used to capture times of each touch on each pin
         """
         for pin in self.touchPins:
+            pin = int(pin)
             self.touchTimes.update({pin : []})
         self.callbackMode = self.callbackMode | TouchDetector.callbackTimeMode
 
